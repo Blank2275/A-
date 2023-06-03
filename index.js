@@ -4,7 +4,7 @@ function righthand(x, y, width, height) {
 		type = 1; // target
 	} else if (x == width - 1 && y == 0) {
 		type = 2;
-	} else if (Math.random() * 100 < 50) {
+	} else if (Math.random() * 100 < 30) {
 		type = -1;
 	}
 	return type;
