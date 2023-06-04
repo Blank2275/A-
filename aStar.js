@@ -105,6 +105,57 @@ class Node {
 	}
 }
 
+class DrawableGrid {
+	constructor(width, height, setType) {
+		this.width = width;
+		this.height = height;
+		this.grid = new Grid();
+		this.grid.build(width, height, 20, setType);
+	}
+
+	display(nodes) {
+		for (let node of nodes) {
+			if (node.type == 3) {
+				fill(50, 120, 240); // path
+			} else if (node.type == 2) {
+				fill(50, 240, 120); // start
+			} else if (node.type == 1) {
+				fill(240, 80, 80); // target
+			} else if (node.type == -1) {
+				fill(40);
+			} else {
+				fill(255); // normal
+			}
+			rect(node.x, node.y, 20, 20);
+		}
+	}
+	addWall(x, y) {
+		this.setNodeType(x, y, -1);
+	}
+	removeWall(x, y) {
+		this.setNodeType(x, y, 0);
+	}
+
+	setNodeType(x, y, val) {
+		let [gx, gy] = this.getGridXY(x, y);
+		let index = gy * this.width + gx;
+		if (
+			this.grid.nodes[index].type != 1 &&
+			this.grid.nodes[index].type != 2
+		) {
+			this.grid.nodes[index].type = val;
+		}
+	}
+
+	getGridXY(x, y) {
+		let gx = Math.floor(x / 20) - 1;
+		let gy = Math.floor(y / 20) - 1;
+		if (gx < 0 || gx >= this.width) gx = -1;
+		if (gy < 0 || gy >= this.height) gy = -1;
+		return [gx, gy];
+	}
+}
+
 class Grid {
 	constructor() {
 		this.nodes = [];
@@ -156,6 +207,16 @@ class Grid {
 		let yOffsets = [top, 0, bottom];
 
 		for (let y = 0; y < this.height; y++) {
+			//reset grid
+			for (let x = 0; x < this.width; x++) {
+				let nodeIndex = y * this.width + x;
+				this.nodes[nodeIndex].neighbors = [];
+				if (this.nodes[nodeIndex].type == 3)
+					this.nodes[nodeIndex].type = 0;
+			}
+		}
+
+		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
 				for (let y2 = -1; y2 <= 1; y2++) {
 					for (let x2 = -1; x2 <= 1; x2++) {
@@ -169,7 +230,6 @@ class Grid {
 							let yIndex = y + yOffset;
 							let nodeIndex = y * this.width + x;
 							let neighborIndex = yIndex * this.width + xIndex;
-
 							if (
 								this.nodes[nodeIndex].type != -1 &&
 								this.nodes[neighborIndex].type != -1

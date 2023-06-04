@@ -10,23 +10,67 @@ function righthand(x, y, width, height) {
 	return type;
 }
 
+function simplex(x, y, width, height) {
+	let type = 0;
+	if (x == 0 && y == height - 1) {
+		type = 1; // target
+	} else if (x == width - 1 && y == 0) {
+		type = 2;
+	} else if (
+		noise2D.noise2D(x / 20, y / 20) +
+			noise2DSmall.noise2D(x / 5, y / 5) / 1.5 >
+		0.4
+	) {
+		type = -1;
+	}
+	return type;
+}
+
+function blank(x, y, width, height) {
+	let type = 0;
+	if (x == 0 && y == height - 1) {
+		type = 1; // target
+	} else if (x == width - 1 && y == 0) {
+		type = 2;
+	}
+	return type;
+}
+
 var grid;
 var solved;
+var noise2D = new SimplexNoise();
+var noise2DSmall = new SimplexNoise();
+var adding = true;
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 	background(100);
 	noStroke();
-	grid = new Grid();
-	grid.build(40, 40, 20, righthand);
-	solved = aStar(grid.nodes, 0, grid.nodes.length - 1);
+	grid = new DrawableGrid(40, 40, blank);
 }
 
 function draw() {
 	background(100);
+	grid.grid.buildNeighbors();
+	solved = aStar(grid.grid.nodes, 0, grid.grid.nodes.length - 1);
 	if (solved.status == 'failure') {
-		background('red');
-		grid.display(grid.nodes);
+		grid.display(grid.grid.nodes);
 	} else {
 		grid.display(solved.nodes);
+	}
+	if (keyIsPressed) {
+		if (keyCode == 65) {
+			//a
+			adding = true;
+		} else if (keyCode == 82) {
+			//r
+			adding = false;
+		}
+	}
+	if (mouseIsPressed) {
+		if (adding) {
+			grid.addWall(mouseX, mouseY);
+		} else {
+			grid.removeWall(mouseX, mouseY);
+		}
 	}
 }
