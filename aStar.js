@@ -138,6 +138,7 @@ class DrawableGrid {
 
 	setNodeType(x, y, val) {
 		let [gx, gy] = this.getGridXY(x, y);
+		if (gx == -1 || gy == -1) return;
 		let index = gy * this.width + gx;
 		if (
 			this.grid.nodes[index].type != 1 &&
